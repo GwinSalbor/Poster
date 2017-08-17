@@ -165,16 +165,16 @@ namespace Poster
         {
             var sb = new StringBuilder();
             sb.Append(GenerateTopTags());
-            sb.AppendLine(Environment.NewLine);
+            sb.AppendLine();
             sb.AppendLine($"Artist: {TextBox_Artist.Text}");
             sb.AppendLine($"Album: {TextBox_Album.Text}");
             if (!string.IsNullOrEmpty(TextBox_Country.Text))
             {
-                sb.Append($"Country: {TextBox_Country.Text}");
+                sb.AppendLine($"Country: {TextBox_Country.Text}");
 
                 if (!string.IsNullOrEmpty(TextBox_Year.Text))
                 {
-                    sb.AppendLine($" '{TextBox_Year.Text.Substring(2, 2)}");
+                    sb.Append($" '{TextBox_Year.Text.Substring(2, 2)}");
                 }
             }
             else
@@ -186,32 +186,58 @@ namespace Poster
             }
             if (!string.IsNullOrEmpty(TextBox_Label.Text))
             {
-                sb.Append($"Label: {TextBox_Label.Text}");
+                sb.AppendLine($"Label: {TextBox_Label.Text}");
                 if (!string.IsNullOrEmpty(TextBox_CatNo.Text))
                 {
-                    sb.AppendLine($" — {TextBox_CatNo.Text}");
+                    sb.Append($" — {TextBox_CatNo.Text}");
                 }
             }
 
             if (!string.IsNullOrEmpty(TextBox_Styles.Text))
             {
-                sb.Append($"Styles: {TextBox_Styles.Text}");
+                sb.AppendLine($"Styles: {TextBox_Styles.Text}");
             }
 
-            sb.AppendLine(Environment.NewLine);
-            sb.Append(GenerateBottomTags());
+            sb.AppendLine();
+            sb.AppendLine(GenerateBottomTags());
 
             var result = sb.ToString();
+
+           // result = Sanitize(result);
+
             TextBox_Result.Text = result;
+        }
+
+        private string Sanitize(string text)
+        {
+            string[] result = new string[] { };
+            if (!string.IsNullOrEmpty(text))
+            {
+                result = text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+                for (int i = 0; i < result.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(result[i]))
+                    {
+                        while (result[i][result[i].Length - 1] == ' ')
+                        {
+                            result[i] = result[i].Remove(result[i].Length - 1);
+                        }
+                    }
+                }
+            }
+
+            return string.Join("", result);
         }
 
         private string GenerateTopTags()
         {
-            var sb = new StringBuilder();
             if (currentRelease.Styles.Length == 0)
             {
                 throw new NotImplementedException();
             }
+
+            var sb = new StringBuilder();
 
             for (int i = 0; i < currentRelease.Styles.Length; i++)
             {
@@ -238,7 +264,7 @@ namespace Poster
             {
                 sb.Append($" #{TextBox_Album.Text.Replace(" ", "")}");
             }
-            sb.Append(Environment.NewLine);
+            sb.AppendLine();
 
             for (int i = 0; i < currentRelease.Styles.Length; i++)
             {
