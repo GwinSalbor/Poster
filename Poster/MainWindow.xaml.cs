@@ -29,7 +29,38 @@ namespace Poster
         public MainWindow()
         {
             InitializeComponent();
+            InitializeStylesComponent();
             TextBox_Url.Text = "https://www.discogs.com/Gong-Flying-Teapot/release/1879546";
+        }
+
+        private void InitializeStylesComponent()
+        {
+            var gridView = new GridView();
+            gridView.Columns.Add(new GridViewColumn { Header = "Style", DisplayMemberBinding = new Binding("Name") });
+
+            StylesList.View = gridView;
+            StylesList.AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(ListView1_MouseLeftButtonDown));
+        }
+
+        private void ListView1_MouseLeftButtonDown(object sender, RoutedEventArgs e)
+        {
+            DependencyObject depObj = e.OriginalSource as DependencyObject;
+            if (depObj != null)
+            {
+                // go up the visual hierarchy until we find the list view item the click came from  
+                // the click might have been on the grid or column headers so we need to cater for this  
+                DependencyObject current = depObj;
+                while (current != null && current != StylesList)
+                {
+                    ListViewItem clickedItem = current as ListViewItem;
+                    if (clickedItem != null)
+                    {
+                        StylesList.Items.Remove(clickedItem.Content);
+                        return;
+                    }
+                    current = VisualTreeHelper.GetParent(current);
+                }
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -46,6 +77,14 @@ namespace Poster
                 return;
             }
             currentRelease = fromJSON(releaseInfo);
+            ///
+            /// TODO
+            currentRelease._Styles = new List<Style>();
+            for (int i = 0; i < currentRelease.Styles.Length; i++)
+            {
+                currentRelease._Styles.Add(new Style { Name = currentRelease.Styles[i] });
+            }
+            ///
             FillForm(currentRelease);
         }
 
@@ -60,6 +99,7 @@ namespace Poster
             TextBox_Styles.Text = "";
             TextBox_Genres.Text = "";
             TextBox_Result.Text = "";
+            StylesList.Items.Clear();
         }
 
         private void FillForm(DiscogsRelease info)
@@ -73,6 +113,7 @@ namespace Poster
 
             for (int i = 0; i < info.Styles.Length; i++)
             {
+                StylesList.Items.Add(new Style { Name = info.Styles[i] });
                 TextBox_Styles.Text += info.Styles[i];
                 if (i == info.Styles.Length - 1)
                 {
@@ -232,22 +273,32 @@ namespace Poster
 
         private string GenerateTopTags()
         {
-            if (currentRelease.Styles.Length == 0)
+            if (currentRelease._Styles.Count == 0)
             {
                 throw new NotImplementedException();
             }
 
             var sb = new StringBuilder();
 
-            for (int i = 0; i < currentRelease.Styles.Length; i++)
+            foreach (var style in StylesList.Items)
             {
-                sb.Append($"#{currentRelease.Styles[i].Replace(" ", "_")}");
-                if (i == currentRelease.Styles.Length - 1)
+                sb.Append($"#{(style as Style).Name.Replace(" ", "_")}");
+                if (style != StylesList.Items[StylesList.Items.Count - 1])
                 {
-                    break;
+                    sb.Append($" / ");
                 }
-                sb.Append($" / ");
             }
+
+            //for (int i = 0; i < currentRelease.Styles.Length; i++)
+            //{
+            //    sb.Append($"#{currentRelease.Styles[i].Replace(" ", "_")}");
+            //    if (i == currentRelease.Styles.Length - 1)
+            //    {
+            //        break;
+            //    }
+            //    sb.Append($" / ");
+            //}
+
             return sb.ToString();
         }
 

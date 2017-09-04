@@ -11,6 +11,7 @@ namespace Poster
         public List<Artist> Artists { get; set; }
         public List<Label> Labels { get; set; }
         public string[] Styles { get; set; }
+        public List<Style> _Styles { get; set; }
         public string[] Genres { get; set; }
     }
 
@@ -25,5 +26,10 @@ namespace Poster
         public int Id { get; set; }
         public string Name { get; set; }
         public string CatNo { get; set; }
+    }
+
+    public class Style
+    {
+        public string Name { get; set; }
     }
 }
