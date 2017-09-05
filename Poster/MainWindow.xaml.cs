@@ -24,7 +24,8 @@ namespace Poster
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static DiscogsRelease currentRelease;
+        public DiscogsRelease currentRelease;
+        public bool IsStyleFlyoutShown = false;
 
         public MainWindow()
         {
@@ -47,19 +48,50 @@ namespace Poster
             DependencyObject depObj = e.OriginalSource as DependencyObject;
             if (depObj != null)
             {
-                // go up the visual hierarchy until we find the list view item the click came from  
-                // the click might have been on the grid or column headers so we need to cater for this  
                 DependencyObject current = depObj;
                 while (current != null && current != StylesList)
                 {
-                    ListViewItem clickedItem = current as ListViewItem;
-                    if (clickedItem != null)
+                    ListViewItem clickedListViewItem = current as ListViewItem;
+                    if (clickedListViewItem != null)
                     {
-                        StylesList.Items.Remove(clickedItem.Content);
+                        StylesList.Items.Remove(clickedListViewItem.Content);
                         return;
                     }
+
+                    ScrollViewer clickedScrollViewer = current as ScrollViewer;
+                    if (clickedScrollViewer != null)
+                    {
+                        ShowStyleFlyout();
+                        return;
+                    }
+
                     current = VisualTreeHelper.GetParent(current);
                 }
+            }
+        }
+
+        private void ShowStyleFlyout()
+        {
+            if (IsStyleFlyoutShown == false)
+            {
+                TextBox element = new TextBox();
+                element.Height = 23;
+                element.Width = 160;
+                element.HorizontalAlignment = HorizontalAlignment.Stretch;
+                element.VerticalContentAlignment = VerticalAlignment.Center;
+                element.AddHandler(KeyDownEvent, new KeyEventHandler(FlyoutButtonPressed));
+
+                Grid.SetColumn(element, 1);
+                StylesGrid.Children.Add(element);
+                IsStyleFlyoutShown = true;
+            }
+        }
+
+        private void FlyoutButtonPressed(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                MessageBox.Show("Enter Pressed");
             }
         }
 
@@ -181,7 +213,7 @@ namespace Poster
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             var sb = new StringBuilder();
-            sb.Append(GenerateTopTags());
+            sb.Append(Tagger.GetHeaderTags(this));
             sb.AppendLine();
             sb.AppendLine($"Artist: {TextBox_Artist.Text}");
             sb.AppendLine($"Album: {TextBox_Album.Text}");
@@ -218,7 +250,7 @@ namespace Poster
             }
 
             sb.AppendLine();
-            sb.AppendLine(GenerateBottomTags());
+            sb.AppendLine(Tagger.GetFooterTags(this));
 
             var result = sb.ToString();
 
@@ -247,82 +279,6 @@ namespace Poster
             }
 
             return string.Join("", result);
-        }
-
-        private string GenerateTopTags()
-        {
-            if (currentRelease.Styles.Count == 0)
-            {
-                MessageBox.Show("There are no styles specified for this release.\r\nPlease add styles on discogs database site.");
-            }
-
-            var sb = new StringBuilder();
-
-            foreach (var style in StylesList.Items)
-            {
-                sb.Append($"#{(style as string).Replace(" ", "_")}");
-                if (style != StylesList.Items[StylesList.Items.Count - 1])
-                {
-                    sb.Append($" / ");
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        private string GenerateBottomTags()
-        {
-            var sb = new StringBuilder();
-            sb.Append($"#{TextBox_Artist.Text.Replace(" ", "_")}");
-            if (TextBox_Artist.Text.IndexOf(" ") > -1)
-            {
-                sb.Append($" #{TextBox_Artist.Text.Replace(" ", "")}");
-            }
-            sb.Append($" #{TextBox_Album.Text.Replace(" ", "_")}");
-            if (TextBox_Album.Text.IndexOf(" ") > -1)
-            {
-                sb.Append($" #{TextBox_Album.Text.Replace(" ", "")}");
-            }
-            sb.AppendLine();
-
-            foreach (string style in StylesList.Items)
-            {
-                if (style.IndexOf(" ") > -1 || style.IndexOf("-") > -1)
-                {
-                    sb.Append($"#{style.Replace(" ", "").Replace("-", "")} ");
-                }
-            }
-
-            sb.Append(GenerateLabelTags(currentRelease.Labels));
-            return sb.ToString();
-        }
-
-        private static string GenerateLabelTags(List<Label> labels)
-        {
-            var result = string.Empty;
-            var last = labels.Last();
-
-            foreach (var label in labels)
-            {
-                if (label.Name.IndexOf(" ") > -1)
-                {
-                    result = string.Concat(result, "#", label.Name.Replace(" ", "_"), " ");
-                    result = string.Concat(result, "#", label.Name.Replace(" ", ""));
-                }
-                else
-                {
-                    result = string.Concat(result, "#", label.Name);
-                }
-                if (!label.Equals(last))
-                {
-                    result = string.Concat(result, " ");
-                }
-            }
-            if (!string.IsNullOrEmpty(result))
-            {
-                result = string.Concat(Environment.NewLine, result);
-            }
-            return result;
         }
     }
 }
