@@ -10,8 +10,8 @@ namespace Poster
         public string Country { get; set; }
         public List<Artist> Artists { get; set; }
         public List<Label> Labels { get; set; }
-        public string[] Styles { get; set; }
-        public List<Style> _Styles { get; set; }
+        // public string[] Styles { get; set; }
+        public List<string> Styles { get; set; }
         public string[] Genres { get; set; }
     }
 
@@ -30,6 +30,7 @@ namespace Poster
 
     public class Style
     {
+        public int Id { get; set; }
         public string Name { get; set; }
     }
 }

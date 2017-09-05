@@ -10,7 +10,7 @@
     Width="Auto"
     SizeToContent="WidthAndHeight"
     ResizeMode="NoResize">
-    
+
     <Grid Margin="10" ShowGridLines="False">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -111,11 +111,11 @@
 
 
             <Label Content="Styles" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0"/>
-            <TextBox x:Name="TextBox_Styles" Height="23" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Grid.Column="1"/>
+            <!--<TextBox x:Name="TextBox_Styles" Height="23" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Grid.Column="1"/>-->
 
-          <ListView x:Name="StylesList" HorizontalAlignment="Stretch" Height="135" VerticalAlignment="Center" Width="133"/>
+            <ListView x:Name="StylesList" HorizontalAlignment="Stretch" Height="135" VerticalAlignment="Center" Width="133" Grid.Column="1"/>
 
-          <Label Content="Genres" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2"/>
+            <Label Content="Genres" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2"/>
             <TextBox x:Name="TextBox_Genres" Height="23" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Grid.Column="3"/>
         </Grid>
 

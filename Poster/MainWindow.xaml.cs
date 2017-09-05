@@ -36,13 +36,13 @@ namespace Poster
         private void InitializeStylesComponent()
         {
             var gridView = new GridView();
-            gridView.Columns.Add(new GridViewColumn { Header = "Style", DisplayMemberBinding = new Binding("Name") });
+            gridView.Columns.Add(new GridViewColumn { Header = "Style", DisplayMemberBinding = new Binding() });
 
             StylesList.View = gridView;
-            StylesList.AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(ListView1_MouseLeftButtonDown));
+            StylesList.AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(ListView1_MouseDoubleClick));
         }
 
-        private void ListView1_MouseLeftButtonDown(object sender, RoutedEventArgs e)
+        private void ListView1_MouseDoubleClick(object sender, RoutedEventArgs e)
         {
             DependencyObject depObj = e.OriginalSource as DependencyObject;
             if (depObj != null)
@@ -77,14 +77,7 @@ namespace Poster
                 return;
             }
             currentRelease = fromJSON(releaseInfo);
-            ///
-            /// TODO
-            currentRelease._Styles = new List<Style>();
-            for (int i = 0; i < currentRelease.Styles.Length; i++)
-            {
-                currentRelease._Styles.Add(new Style { Name = currentRelease.Styles[i] });
-            }
-            ///
+
             FillForm(currentRelease);
         }
 
@@ -96,7 +89,6 @@ namespace Poster
             TextBox_Year.Text = "";
             TextBox_Label.Text = "";
             TextBox_CatNo.Text = "";
-            TextBox_Styles.Text = "";
             TextBox_Genres.Text = "";
             TextBox_Result.Text = "";
             StylesList.Items.Clear();
@@ -111,15 +103,9 @@ namespace Poster
             TextBox_Label.Text = info.Labels.FirstOrDefault().Name;
             TextBox_CatNo.Text = info.Labels.FirstOrDefault().CatNo;
 
-            for (int i = 0; i < info.Styles.Length; i++)
+            foreach (var style in info.Styles)
             {
-                StylesList.Items.Add(new Style { Name = info.Styles[i] });
-                TextBox_Styles.Text += info.Styles[i];
-                if (i == info.Styles.Length - 1)
-                {
-                    break;
-                }
-                TextBox_Styles.Text += ", ";
+                StylesList.Items.Add(style);
             }
 
             for (int i = 0; i < info.Genres.Length; i++)
@@ -131,16 +117,6 @@ namespace Poster
                 }
                 TextBox_Genres.Text += ", ";
             }
-        }
-
-        private object getAttribute(Dictionary<string, object> collection, string attribute)
-        {
-            return collection.Keys.Contains(attribute) && collection[attribute].ToString().Length > 0 ? collection[attribute] : string.Empty;
-        }
-
-        private object getString(Dictionary<string, object> collection, string attribute)
-        {
-            return collection.Keys.Contains(attribute) && collection[attribute].ToString().Length > 0 ? collection[attribute] : string.Empty;
         }
 
         private bool isValidUrl(string url)
@@ -234,9 +210,11 @@ namespace Poster
                 }
             }
 
-            if (!string.IsNullOrEmpty(TextBox_Styles.Text))
+            if (StylesList.Items.Count > 0)
             {
-                sb.AppendLine($"Styles: {TextBox_Styles.Text}");
+                sb.AppendLine($"Styles: ");
+                string stylesLine = StringBuilder.GetSeparatedLine(StylesList.Items, ", ");
+                sb.Append(stylesLine);
             }
 
             sb.AppendLine();
@@ -244,7 +222,7 @@ namespace Poster
 
             var result = sb.ToString();
 
-           // result = Sanitize(result);
+            // result = Sanitize(result);
 
             TextBox_Result.Text = result;
         }
@@ -273,31 +251,21 @@ namespace Poster
 
         private string GenerateTopTags()
         {
-            if (currentRelease._Styles.Count == 0)
+            if (currentRelease.Styles.Count == 0)
             {
-                throw new NotImplementedException();
+                MessageBox.Show("There are no styles specified for this release.\r\nPlease add styles on discogs database site.");
             }
 
             var sb = new StringBuilder();
 
             foreach (var style in StylesList.Items)
             {
-                sb.Append($"#{(style as Style).Name.Replace(" ", "_")}");
+                sb.Append($"#{(style as string).Replace(" ", "_")}");
                 if (style != StylesList.Items[StylesList.Items.Count - 1])
                 {
                     sb.Append($" / ");
                 }
             }
-
-            //for (int i = 0; i < currentRelease.Styles.Length; i++)
-            //{
-            //    sb.Append($"#{currentRelease.Styles[i].Replace(" ", "_")}");
-            //    if (i == currentRelease.Styles.Length - 1)
-            //    {
-            //        break;
-            //    }
-            //    sb.Append($" / ");
-            //}
 
             return sb.ToString();
         }
@@ -317,16 +285,11 @@ namespace Poster
             }
             sb.AppendLine();
 
-            for (int i = 0; i < currentRelease.Styles.Length; i++)
+            foreach (string style in StylesList.Items)
             {
-                if (currentRelease.Styles[i].IndexOf(" ") > -1)
+                if (style.IndexOf(" ") > -1 || style.IndexOf("-") > -1)
                 {
-                    sb.Append($"#{currentRelease.Styles[i].Replace(" ", "")}");
-                    if (i == currentRelease.Styles.Length - 1)
-                    {
-                        break;
-                    }
-                    sb.Append($" ");
+                    sb.Append($"#{style.Replace(" ", "").Replace("-", "")} ");
                 }
             }
 
