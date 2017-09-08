@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Web.Script.Serialization;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Poster
 {
@@ -75,6 +76,8 @@ namespace Poster
             if (IsStyleFlyoutShown == false)
             {
                 TextBox element = new TextBox();
+                element.Name = "textBox_flyout";
+                RegisterName("textBox_flyout", element);
                 element.Height = 23;
                 element.Width = 160;
                 element.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -83,6 +86,7 @@ namespace Poster
 
                 Grid.SetColumn(element, 1);
                 StylesGrid.Children.Add(element);
+                element.Focus();
                 IsStyleFlyoutShown = true;
             }
         }
@@ -91,8 +95,36 @@ namespace Poster
         {
             if (e.Key == Key.Enter)
             {
-                MessageBox.Show("Enter Pressed");
+                TextBox tb = (TextBox)FindName("textBox_flyout");
+                if (tb != null)
+                {
+                    string newStyle = tb.Text;
+                    if (!string.IsNullOrEmpty(newStyle))
+                    {
+                        AddStyle(newStyle);
+                    }
+
+                    StylesGrid.Children.Remove(tb);
+                    UnregisterName("textBox_flyout");
+                    IsStyleFlyoutShown = false;
+                }
             }
+        }
+
+        private void AddStyle(string newStyle)
+        {
+            if (IsDuplicate(newStyle) == false)
+            {
+                StylesList.Items.Add(newStyle);
+            }
+        }
+
+        private bool IsDuplicate(string newStyle)
+        {
+            return false;
+            /// TODO: 
+            /// Levenstein Distance
+            /// 80% similarity
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

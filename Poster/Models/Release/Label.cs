@@ -2,8 +2,8 @@
 {
     public class Label
     {
-        public int Id { get; internal set; }
-        public string Name { get; internal set; }
-        public string CatNo { get; internal set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string CatNo { get; set; }
     }
 }
