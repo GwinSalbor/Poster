@@ -167,9 +167,12 @@ namespace Poster
             TextBox_Label.Text = info.Labels.FirstOrDefault().Name;
             TextBox_CatNo.Text = info.Labels.FirstOrDefault().CatNo;
 
-            foreach (var style in info.Styles)
+            if (info.Styles != null)
             {
-                StylesList.Items.Add(style);
+                foreach (var style in info.Styles)
+                {
+                    StylesList.Items.Add(style);
+                }
             }
 
             for (int i = 0; i < info.Genres.Length; i++)
