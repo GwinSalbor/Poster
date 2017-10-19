@@ -8,6 +8,10 @@ namespace Poster
 {
     public class Tagger
     {
+        public void Concat(){
+            GetFooterTags();
+        }
+
         internal static string GetFooterTags(MainWindow context)
         {
             var sb = new StringBuilder();
